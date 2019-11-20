@@ -31,7 +31,7 @@ function start() {
 
         console.table(res);
 
-        askForId();
+        askForId();    
     });
 }
 
@@ -58,49 +58,47 @@ function askForId() {
             var chosenItem;
 
             for (var i = 0; i < res.length; i++) {
-              if (res[i].id == answer.theID) {
-                chosenItem = res[i];
-              }
-            //   } else {
-            //       console.log("**--__INVALID ENTRY - Please Try Again**--__");
-            //       askForId();
-            //   }
-            }
+                if (res[i].id == answer.theID) {
+                    chosenItem = res[i];
 
-            inquirer.prompt([
+                    inquirer.prompt([
 
-                {
-                    type: "input",
-                    name: "count",
-                    message: "How many units would you like to purchase?"
+                        {
+                            type: "input",
+                            name: "count",
+                            message: "How many units would you like to purchase?"
+                        }
+
+
+                    ]).then(function (answer) {
+
+                        let newStock = chosenItem.stock - parseInt(answer.count);
+
+                        connection.query(
+                            "UPDATE inventory SET ? WHERE ?",
+                            [
+                                {
+                                    stock: newStock
+                                },
+                                {
+                                    id: chosenItem.id
+                                }
+                            ],
+                            function (error) {
+                                if (error) throw err;
+                                console.log("");
+                                console.log("Thank you for your purchase! Your total is $" + chosenItem.price * answer.count + ". Thank you for choosing Bamazon.");
+                                console.log("");
+                                start();
+                            }
+                        );
+
+
+                    });
                 }
 
+            }
 
-            ]).then(function (answer) {
-
-                let newStock = chosenItem.stock - parseInt(answer.count);
-
-                connection.query(
-                    "UPDATE inventory SET ? WHERE ?",
-                    [
-                      {
-                        stock: newStock
-                      },
-                      {
-                        id: chosenItem.id
-                      }
-                    ],
-                    function(error) {
-                      if (error) throw err;
-                      console.log("");
-                      console.log("Thank you for your purchase! Your total is $" + chosenItem.price * answer.count + ". Thank you for choosing Bamazon.");
-                      console.log("");
-                      start();
-                    }
-                  );
-
-
-            });
         })
 
     });
